@@ -4,10 +4,6 @@ String extensions and quality of life methods
 
 Provides a bunch of extensions for Strings, HTML manipulation methods, splitting, spanish language quality of life, etc.
 
-## Ussage
-
-For general ussage tips and expectations, take a look at the tests in `spec/`
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -24,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+For general ussage tips and expectations, take a look at the tests in `spec/`
 
 ## Contributing
 
