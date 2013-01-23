@@ -36,17 +36,17 @@ module Piola
     end
 
     # Return just the most important clean words of a string
-    def just_words(options = {remove_special: true})
+    def just_words(options = {remove_special: true, important_words: true})
       str = self
       str = str.
               clean_text.
               remove_quotes.
               strip_tags.
               remove_all_parenthesis.
-              downcase.
-              important_words
+              downcase
 
-      str = str.remove_special_chars if options[:remove_special]
+      str = str.important_words       if options[:important_words]
+      str = str.remove_special_chars  if options[:remove_special]
       str = str.only_letters
       str
     end

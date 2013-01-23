@@ -41,6 +41,16 @@ describe Piola::Importance do
       txt.just_words.should eql('assange esta peor prision more quotes')
     end
 
+    it 'removes words with equal or less than 3 chars' do
+      txt = "this is a test"
+      txt.just_words.should eql('this test')
+    end
+
+    it "doesn't remove words with 3 chars when option is passed" do
+      txt = "this is a test"
+      txt.just_words(important_words: false).should eql('this is a test')
+    end
+
   end
 
 end
