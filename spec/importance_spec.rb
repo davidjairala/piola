@@ -48,7 +48,7 @@ describe Piola::Importance do
 
     it "doesn't remove words with 3 chars when option is passed" do
       txt = "this is a test"
-      txt.just_words(important_words: false).should eql('this is a test')
+      txt.just_words(small_words: true).should eql('this is a test')
     end
 
   end

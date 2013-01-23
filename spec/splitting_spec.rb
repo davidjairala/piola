@@ -10,6 +10,16 @@ describe Piola::Splitting do
       txt.to_arr.should eql(%w(foo bar baz test with enters))
     end
 
+    it "it converts to uniq" do
+      txt = "test1 test2 test3 test2"
+      txt.to_arr.should eql(%w(test1 test2 test3))
+    end
+
+    it "doesn't uniq when option" do
+      txt = "test1 test2 test3 test2"
+      txt.to_arr(non_unique: true).should eql(%w(test1 test2 test3 test2))
+    end
+
   end
 
   describe '#string_to_parragraph_arr' do

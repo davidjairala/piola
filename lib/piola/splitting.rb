@@ -5,7 +5,7 @@ module Piola
   module Splitting
 
     # Converts a string into a word array without extra spaces, etc
-    def to_arr(options = {unique: true})
+    def to_arr(options = {})
       str = self
       str = str.strip
       str = str.gsub(',', ' ')
@@ -13,7 +13,7 @@ module Piola
       str = str.gsub(/ +/, ' ')
       arr = str.split(' ')
       arr = arr.compact
-      arr = arr.uniq if options[:unique]
+      arr = arr.uniq unless options[:non_unique]
       arr
     end
 
