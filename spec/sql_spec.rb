@@ -27,6 +27,11 @@ describe Piola::Sql do
       txt.searchify(fields).should eql("(title LIKE \"%exact phrase%\" AND title LIKE \"%foo%\" AND title LIKE \"%bar%\" OR description LIKE \"%exact phrase%\" AND description LIKE \"%foo%\" AND description LIKE \"%bar%\")")
     end
 
+    it "should permit exact word matching" do
+      txt = 'foo bar "exact phrase" `football`'
+      txt.searchify(fields).should eql("((title LIKE \"% football %\" OR title LIKE \"% football.%\" OR title LIKE \"% football,%\") AND title LIKE \"%exact phrase%\" AND title LIKE \"%foo%\" AND title LIKE \"%bar%\" OR (description LIKE \"% football %\" OR description LIKE \"% football.%\" OR description LIKE \"% football,%\") AND description LIKE \"%exact phrase%\" AND description LIKE \"%foo%\" AND description LIKE \"%bar%\")")
+    end
+
     it "should permit excluding words" do
       txt = "foo bar -baz"
       txt.searchify(fields).should eql("(title LIKE \"%foo%\" AND title LIKE \"%bar%\" OR description LIKE \"%foo%\" AND description LIKE \"%bar%\") AND (title NOT LIKE \"%baz%\" AND description NOT LIKE \"%baz%\")")
@@ -35,6 +40,11 @@ describe Piola::Sql do
     it "should permit exact excludes" do
       txt = 'foo bar -"exact phrase"'
       txt.searchify(fields).should eql("(title LIKE \"%foo%\" AND title LIKE \"%bar%\" OR description LIKE \"%foo%\" AND description LIKE \"%bar%\") AND (title NOT LIKE \"%exact phrase%\" AND description NOT LIKE \"%exact phrase%\")")
+    end
+
+    it "should permit exact word excludes" do
+      txt = 'foo bar -`exact phrase`'
+      txt.searchify(fields).should eql("(title LIKE \"%foo%\" AND title LIKE \"%bar%\" OR description LIKE \"%foo%\" AND description LIKE \"%bar%\") AND ((title NOT LIKE \"% exact phrase %\" OR title NOT LIKE \"% exact phrase.%\" OR title NOT LIKE \"% exact phrase,%\") AND (description NOT LIKE \"% exact phrase %\" OR description NOT LIKE \"% exact phrase.%\" OR description NOT LIKE \"% exact phrase,%\"))")
     end
 
     it "should permit mixing all the options" do

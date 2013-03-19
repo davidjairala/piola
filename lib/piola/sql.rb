@@ -57,118 +57,150 @@ module Piola
       str = str.gsub("?", ' ')
       str = str.strip
 
-      if str.present?
-        exacts          = []
-        regulars        = []
-        exact_excludes  = []
-        excludes        = []
+      return '0' unless str.present?
 
-        # Check for exact excludes
-        exact_excludes_matches = str.scan(/-"(.*?)"/)
+      exact_words         = []
+      exacts              = []
+      regulars            = []
+      exact_word_excludes = []
+      exact_excludes      = []
+      excludes            = []
 
-        exact_excludes_matches.each do |match|
-          match = match.first
+      # Check for exact excludes
+      exact_excludes_matches = str.scan(/-"(.*?)"/)
 
-          # Remove match from main string
-          str = str.gsub(/-"#{match}"/, '').strip
+      exact_excludes_matches.each do |match|
+        match = match.first
 
-          exact_excludes << match.strip
-        end
+        # Remove match from main string
+        str = str.gsub(/-"#{match}"/, '').strip
 
-        # Check for exact searches
-        exact_matches = str.scan(/"(.*?)"/)
+        exact_excludes << match.strip
+      end
 
-        exact_matches.each do |match|
-          match = match.first
+      # Check for exact word excludes
+      exact_word_excludes_matches = str.scan(/-`(.*?)`/)
 
-          # Remove match from main string
-          str = str.gsub(/"#{match}"/, '').strip
+      exact_word_excludes_matches.each do |match|
+        match = match.first
 
-          exacts << match.strip
-        end
+        # Remove match from main string
+        str = str.gsub(/-`#{match}`/, '').strip
 
-        # Check for excludes with spaces after them
-        exclude_matches = str.scan(/-.+? /)
+        exact_word_excludes << match.strip
+      end
 
-        exclude_matches.each do |match|
-          match.strip!
-          match = match.gsub(/-/, '')
+      # Check for exact words
+      exact_word_matches = str.scan(/`(.*?)`/)
 
-          # Remove match from main string
-          str = str.gsub(/-#{match}/, '').strip
+      exact_word_matches.each do |match|
+        match = match.first
 
-          excludes << match.strip
-        end
+        # Remove match from main string
+        str = str.gsub(/`#{match}`/, '').strip
 
-        # Check for excludes at the end of the string
-        exclude_matches = str.scan(/-.+?$/)
+        exact_words << match.strip
+      end
 
-        exclude_matches.each do |match|
-          match.strip!
-          match = match.gsub(/-/, '')
+      # Check for exact searches
+      exact_matches = str.scan(/"(.*?)"/)
 
-          # Remove match from main string
-          str = str.gsub(/-#{match}/, '').strip
+      exact_matches.each do |match|
+        match = match.first
 
-          excludes << match.strip
-        end
+        # Remove match from main string
+        str = str.gsub(/"#{match}"/, '').strip
 
-        # Check for regular searches
-        regulars = str.to_arr
+        exacts << match.strip
+      end
 
-        # Build the query
-        query   = []
-        rows    = []
-        cells   = []
+      # Check for excludes with spaces after them
+      exclude_matches = str.scan(/-.+? /)
 
-        # Includes
-        query_includes = ""
+      exclude_matches.each do |match|
+        match.strip!
+        match = match.gsub(/-/, '')
 
-        if exacts.any? || regulars.any?
-          fields.each do |field|
-            cells = []
+        # Remove match from main string
+        str = str.gsub(/-#{match}/, '').strip
 
-            [exacts, regulars].each do |matchers|
-              matchers.each do |matcher|
-                cells << "#{field} LIKE \"%#{matcher.remove_quotes}%\""
-              end
-            end
+        excludes << match.strip
+      end
 
-            rows << cells.join(" #{operator} ")
-          end
+      # Check for excludes at the end of the string
+      exclude_matches = str.scan(/-.+?$/)
 
-          query_includes = rows.join(" OR ")
-          query << "(#{query_includes})"
-        end
+      exclude_matches.each do |match|
+        match.strip!
+        match = match.gsub(/-/, '')
 
-        # Excludes
-        query_excludes = ""
+        # Remove match from main string
+        str = str.gsub(/-#{match}/, '').strip
 
-        if exact_excludes.any? || excludes.any?
-          rows  = []
+        excludes << match.strip
+      end
+
+      # Check for regular searches
+      regulars = str.to_arr
+
+      # Build the query
+      query   = []
+      rows    = []
+      cells   = []
+
+      # Includes
+      query_includes = ""
+
+      if exact_words.any? || exacts.any? || regulars.any?
+        fields.each do |field|
           cells = []
 
-          fields.each do |field|
-            cells = []
-
-            [exact_excludes, excludes].each do |matchers|
-              matchers.each do |matcher|
-                cells << "#{field} NOT LIKE \"%#{matcher.remove_quotes}%\""
-              end
-            end
-
-            rows << cells.join(" #{operator} ")
+          exact_words.each do |matcher|
+            cells << "(#{field} LIKE \"% #{matcher.remove_quotes} %\" OR #{field} LIKE \"% #{matcher.remove_quotes}.%\" OR #{field} LIKE \"% #{matcher.remove_quotes},%\")"
           end
 
-          query_excludes = rows.join(" AND ")
-          query << "(#{query_excludes})"
+          [exacts, regulars].each do |matchers|
+            matchers.each do |matcher|
+              cells << "#{field} LIKE \"%#{matcher.remove_quotes}%\""
+            end
+          end
+
+          rows << cells.join(" #{operator} ")
         end
 
-        return query.join(" AND ") if query.any?
-        return '0'
-      else
-        return '0'
+        query_includes = rows.join(" OR ")
+        query << "(#{query_includes})"
       end
+
+      # Excludes
+      query_excludes = ""
+
+      if exact_word_excludes.any? || exact_excludes.any? || excludes.any?
+        rows  = []
+        cells = []
+
+        fields.each do |field|
+          cells = []
+
+          exact_word_excludes.each do |matcher|
+            cells << "(#{field} NOT LIKE \"% #{matcher.remove_quotes} %\" OR #{field} NOT LIKE \"% #{matcher.remove_quotes}.%\" OR #{field} NOT LIKE \"% #{matcher.remove_quotes},%\")"
+          end
+
+          [exact_excludes, excludes].each do |matchers|
+            matchers.each do |matcher|
+              cells << "#{field} NOT LIKE \"%#{matcher.remove_quotes}%\""
+            end
+          end
+
+          rows << cells.join(" #{operator} ")
+        end
+
+        query_excludes = rows.join(" AND ")
+        query << "(#{query_excludes})"
+      end
+
+      return query.join(" AND ") if query.any?
+      return '0'
     end
 
   end
