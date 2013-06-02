@@ -10,6 +10,11 @@ describe Piola::Html do
       txt.strip_tags.should eql('foo bar baz.')
     end
 
+    it "removes quoted tags" do
+      txt = '&lt;div id="baz_id"&gt;&lt;p&gt;foo bar baz.&lt;br&gt;&lt;/p&gt;&lt;/div&gt;&lt;div style="clear:both;"&gt;&lt;/div&gt;'
+      txt.strip_tags.should eql('foo bar baz.')
+    end
+
   end
 
   describe '#strip_tags_enters' do

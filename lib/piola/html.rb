@@ -5,7 +5,8 @@ module Piola
     # Remove html tags
     def strip_tags
       str = self
-      str = str.gsub(/<\/?[^>]*>/, "")
+      str = str.gsub(/<\/?[^>]*>/, '')
+      str = str.gsub(/&lt;.*?&gt;/, '')
       str = str.gsub('&raquo;', '')
       str = str.gsub('&nbsp;', ' ')
       str = str.remove_all_parenthesis
