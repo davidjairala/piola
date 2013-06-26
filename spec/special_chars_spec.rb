@@ -24,6 +24,15 @@ describe Piola::SpecialChars do
 
   end
 
+  describe '#clean_chars' do
+
+    it "returns a clean string with no weird chars" do
+      txt = "RT @ipbc79: Pasajes de avion ✔ hotel reservado ✔ boletos ✔ .... 🔜 Nos vemos el 31 de octubre @justinbieber #Ecuador"
+      txt.clean_chars.should eql "RT @ipbc79: Pasajes de avion hotel reservado boletos Nos vemos el 31 de octubre @justinbieber #Ecuador"
+    end
+
+  end
+
   describe '#downcase_special_chars' do
 
     it "downcases all special chars" do

@@ -4,15 +4,15 @@ module Piola
 
   module SpecialChars
 
+    ACCENTS = [193, 201, 205, 209, 211, 218, 220, 225, 233, 237, 241, 243, 250, 252, 246, 214]
+
     # Determines if a char is a spanish letter
     def spanish_char?
-      accents = [193, 201, 205, 209, 211, 218, 220, 225, 233, 237, 241, 243, 250, 252, 246, 214]
-
       ord = self.ord
       return true if ord == 32
       return true if ord >= 65 && ord <= 90
       return true if ord >= 97 && ord <= 122
-      return true if accents.include?(ord)
+      return true if ACCENTS.include? ord
       false
     end
 
@@ -30,6 +30,29 @@ module Piola
 
       str = str.gsub(/ +/, ' ').strip
       str
+    end
+
+    # Removes weird chars from a string
+    def clean_chars
+      str = self
+      str = str.gsub(',', ' ')
+      str = str.gsub('.', ' ')
+      str = str.gsub(/ +/, ' ')
+      str = str.strip
+
+      str = str.split('').map do |char|
+        char if char.normal_char?
+      end.compact.join
+
+      str = str.gsub(/ +/, ' ').strip
+      str
+    end
+
+    def normal_char?
+      ord = self.ord
+      return true if ord >= 32 && ord <= 126
+      return true if ACCENTS.include? ord
+      false
     end
 
     # Converts special chars to downcase

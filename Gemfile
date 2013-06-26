@@ -5,3 +5,4 @@ gemspec
 
 gem 'bundler'
 gem 'rspec'
+gem 'debugger'
