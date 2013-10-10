@@ -31,6 +31,22 @@ describe Piola::SpecialChars do
       txt.clean_chars.should eql "RT @ipbc79: Pasajes de avion hotel reservado boletos Nos vemos el 31 de octubre @justinbieber #Ecuador"
     end
 
+    it "leaves periods when opted in" do
+      txt = "Debate del Código Penal inicia con ‘cabos sueltos’ http://t.co/5pDpYJoKZz"
+      txt.clean_chars.should eql "Debate del Código Penal inicia con cabos sueltos http://t co/5pDpYJoKZz"
+
+      txt = "Debate del Código Penal inicia con ‘cabos sueltos’ http://t.co/5pDpYJoKZz"
+      txt.clean_chars(keep_periods: true).should eql "Debate del Código Penal inicia con cabos sueltos http://t.co/5pDpYJoKZz"
+    end
+
+    it "leaves commas when opted in" do
+      txt = "Debate del Código Penal inicia, con ‘cabos sueltos’ http://t.co/5pDpYJoKZz"
+      txt.clean_chars.should eql "Debate del Código Penal inicia con cabos sueltos http://t co/5pDpYJoKZz"
+
+      txt = "Debate del Código Penal inicia, con ‘cabos sueltos’ http://t.co/5pDpYJoKZz"
+      txt.clean_chars(keep_commas: true).should eql "Debate del Código Penal inicia, con cabos sueltos http://t co/5pDpYJoKZz"
+    end
+
   end
 
   describe '#downcase_special_chars' do

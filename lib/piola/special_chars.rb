@@ -33,10 +33,10 @@ module Piola
     end
 
     # Removes weird chars from a string
-    def clean_chars
+    def clean_chars(options = {})
       str = self
-      str = str.gsub(',', ' ')
-      str = str.gsub('.', ' ')
+      str = str.gsub(',', ' ') unless options[:keep_commas]
+      str = str.gsub('.', ' ') unless options[:keep_periods]
       str = str.gsub(/ +/, ' ')
       str = str.strip
 
